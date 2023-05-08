@@ -47,12 +47,28 @@ public:
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
     }
 
+    inline static vec3 random() {
+        return vec3(random_double(), random_double(), random_double());
+    }
+
+    inline static vec3 random(double min, double max) {
+        return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+    }
+
 public:
     double e[3];
 };
 
 using point3 = vec3;
 using color = vec3;
+
+vec3 random_in_unit_sphere() {
+    while (true) {
+        auto p = vec3::random();
+        if (p.length_squared() > 1.0) continue;
+        return p;
+    }
+}
 
 inline std::ostream& operator<<(std::ostream &out, const vec3 &v) {
     return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];

@@ -19,7 +19,7 @@ public:
         return orig + t * dire;
     }
 
-public:
+private:
     point3 orig;
     vec3 dire;
 };

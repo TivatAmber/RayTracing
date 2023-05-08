@@ -15,13 +15,13 @@ public:
 
     virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const override;
 
-public:
+private:
     point3 center;
     double radius;
 };
 
 bool sphere::hit(const ray &r, double t_min, double t_max, hit_record &rec) const {
-    vec3 oc = r.orig - center;
+    vec3 oc = r.origin() - center;
     auto a = r.direction().length_squared();
     auto half_b = dot(oc, r.direction());
     auto c = oc.length_squared() - radius * radius;

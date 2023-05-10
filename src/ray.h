@@ -10,10 +10,11 @@
 class ray {
 public:
     ray() {}
-    ray(const point3& origin, const vec3 direction):orig(origin), dire(direction) {}
+    ray(const point3& origin, const vec3 direction, double time = 0.0):orig(origin), dire(direction), tm(time) {}
 
     point3 origin() const {return orig;}
     vec3 direction() const {return dire;}
+    double time() const {return tm;}
 
     point3 at(double t) const {
         return orig + t * dire;
@@ -22,6 +23,7 @@ public:
 private:
     point3 orig;
     vec3 dire;
+    double tm;
 };
 
 #endif //RAYTRACING_RAY_H

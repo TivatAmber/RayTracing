@@ -5,6 +5,7 @@
 #include "src/sphere.h"
 #include "src/camera.h"
 #include "src/material.h"
+#include "src/moving_sphere.h"
 
 #include <iostream>
 color ray_color(const ray& r, const hittable& world, int depth) {
@@ -42,7 +43,8 @@ hittable_list random_scene() {
                     // diffuse
                     auto albedo = color::random() * color::random();
                     sphere_material = std::make_shared<lambertian>(albedo);
-                    world.add(std::make_shared<sphere>(center, 0.2, sphere_material));
+                    auto center2 = center + vec3(0, random_double(0, 0.5), 0);
+                    world.add(std::make_shared<moving_sphere>(center, center2, 0.0, 1.0, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     // metal
                     auto albedo = color::random(0.5, 1);
@@ -73,10 +75,10 @@ hittable_list random_scene() {
 
 int main() {
     // Image
-    const auto aspect_ratio = 3.0 / 2.0;
-    const int image_width = 1200;
+    const auto aspect_ratio = 16.0 / 9.0;
+    const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 500;
+    const int samples_per_pixel = 100;
     const int max_depth = 50;
 
     // World
@@ -92,7 +94,7 @@ int main() {
     auto focus_dist = 10;
     // auto focus_dist = (lookfrom - lookat).length();
     auto aperture = 0.1;
-    camera MainCamera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, focus_dist);
+    camera MainCamera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, focus_dist, 0.0, 1.0);
 
     freopen("image.ppm", "w", stdout);
 
@@ -104,8 +106,8 @@ int main() {
         for (int j = 0; j < image_width; j++) {
             color pixel_color (0.0, 0.0, 0.0);
             for (int s = 0; s < samples_per_pixel; s++) {
-                auto u = (i + random_double()) / (image_height - 1);
-                auto v = (j + random_double()) / (image_width - 1);
+                auto u = (j + random_double()) / (image_width - 1);
+                auto v = (i + random_double()) / (image_height - 1);
                 ray r = MainCamera.get_ray(u, v);
                 pixel_color += ray_color(r, world, max_depth);
             }

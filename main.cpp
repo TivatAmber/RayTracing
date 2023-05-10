@@ -27,7 +27,7 @@ color ray_color(const ray& r, const hittable& world, int depth) {
 int main() {
     // Image
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 1920;
+    const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     const int samples_per_pixel = 100;
     const int max_depth = 50;
@@ -48,7 +48,14 @@ int main() {
 
     // Camera
 //    camera MainCamera(point3(-2,2,1), point3(0,0,-1), vec3(0,1,0), 90, aspect_ratio);
-    camera MainCamera(point3(-2,2,1), point3(0,0,-1), vec3(0,1,0), 20, aspect_ratio);
+//    camera MainCamera(point3(-2,2,1), point3(0,0,-1), vec3(0,1,0), 20, aspect_ratio);
+    point3 lookfrom(3, 3, 2);
+    point3 lookat(0, 0, -1);
+    vec3 vup(0, 1, 0);
+    auto fov = 20;
+    auto focus_dist = (lookfrom - lookat).length();
+    auto aperture = 2.0;
+    camera MainCamera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, focus_dist);
 
     freopen("image.ppm", "w", stdout);
 

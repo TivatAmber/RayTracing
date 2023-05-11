@@ -28,8 +28,8 @@ color ray_color(const ray& r, const hittable& world, int depth) {
 hittable_list random_scene() {
     hittable_list world;
 
-    auto ground_material = std::make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    world.add(std::make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
+    auto checker = std::make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+    world.add(std::make_shared<sphere>(point3(0,-1000,0), 1000, std::make_shared<lambertian>(checker)));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -72,6 +72,26 @@ hittable_list random_scene() {
     return world;
 }
 
+hittable_list two_spheres() {
+    hittable_list objects;
+
+    auto checker = std::make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
+
+    objects.add(std::make_shared<sphere>(point3(0,-10, 0), 10, std::make_shared<lambertian>(checker)));
+    objects.add(std::make_shared<sphere>(point3(0, 10, 0), 10, std::make_shared<lambertian>(checker)));
+
+    return objects;
+}
+
+hittable_list two_perlin_spheres() {
+    hittable_list objects;
+
+    auto pertext = std::make_shared<noise_texture>();
+    objects.add(std::make_shared<sphere>(point3(0,-1000,0), 1000, std::make_shared<lambertian>(pertext)));
+    objects.add(std::make_shared<sphere>(point3(0, 2, 0), 2, std::make_shared<lambertian>(pertext)));
+
+    return objects;
+}
 
 int main() {
     // Image
@@ -82,19 +102,42 @@ int main() {
     const int max_depth = 50;
 
     // World
-    hittable_list world = random_scene();
+    hittable_list world;
+    point3 lookfrom;
+    point3 lookat;
+    auto vfov = 40;
+    auto aperture = 0.0;
+
+    switch (0) {
+        case 1:
+            world = random_scene();
+            lookfrom = point3 (13, 2, 3);
+            lookat = point3 (0, 0, 0);
+            vfov = 20.0;
+            aperture = 0.1;
+            break;
+
+        case 2:
+            world = two_spheres();
+            lookfrom = point3 (13, 2, 3);
+            lookat = point3 (0, 0, 0);
+            vfov = 20.0;
+            break;
+
+        default:
+        case 3:
+            world = two_perlin_spheres();
+            lookfrom = point3 (13, 2, 3);
+            lookat = point3 (0, 0, 0);
+            vfov = 20.0;
+            break;
+    }
 
     // Camera
-//    camera MainCamera(point3(-2,2,1), point3(0,0,-1), vec3(0,1,0), 90, aspect_ratio);
-//    camera MainCamera(point3(-2,2,1), point3(0,0,-1), vec3(0,1,0), 20, aspect_ratio);
-    point3 lookfrom(13, 2, 3);
-    point3 lookat(0, 0, 0);
     vec3 vup(0, 1, 0);
-    auto fov = 20;
     auto focus_dist = 10;
-    // auto focus_dist = (lookfrom - lookat).length();
-    auto aperture = 0.1;
-    camera MainCamera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, focus_dist, 0.0, 1.0);
+
+    camera MainCamera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, focus_dist, 0.0, 1.0);
 
     freopen("image.ppm", "w", stdout);
 

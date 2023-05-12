@@ -6,6 +6,7 @@
 #define RAYTRACING_TEXTURE_H
 
 #include "rtweekend.h"
+#include "rtw_stb_image.h"
 
 #include "perlin.h"
 
@@ -53,12 +54,63 @@ public:
 class noise_texture : public texture {
 public:
     noise_texture() {}
+    noise_texture(double sc):scale(sc) {}
 
     virtual color value(double u, double v, const point3& p) const override {
-        return color (1, 1, 1) * noise.noise(p);
+        return color (1, 1, 1) * (1 + sin(10 * noise.turb(p) + scale * p.z())) * 0.5;
     }
 public:
     perlin noise;
+    double scale;
+};
+
+class image_texture: public texture {
+public:
+    const static int bytes_per_pixel = 3;
+
+    image_texture():
+        data(nullptr), width(0), height(0), bytes_per_scanline(0) {}
+
+    image_texture(const char* filename) {
+        auto components_per_pixel = bytes_per_scanline;
+
+        data = stbi_load(filename, &width, &height, &components_per_pixel, bytes_per_pixel);
+
+        if (!data) {
+            std::cerr << "ERROR: Could not load the file '" << filename << "'.\n";
+            width = height = 0;
+        }
+
+        std::cout << width << " " << height << std::endl;
+
+        bytes_per_scanline = bytes_per_pixel * width;
+    }
+
+    ~image_texture() {delete data;}
+
+    virtual color value(double u, double v, const point3& p) const override {
+        if (data == nullptr) return color (0.0, 1.0, 1.0);
+
+        u = clamp(u, 0.0, 1.0);
+        v = 1.0 - clamp(v, 0.0, 1.0);
+
+        auto i = static_cast<int>(u * width);
+        auto j = static_cast<int>(v * height);
+
+        if (i >= width) i = width - 1;
+        if (j >= height) j = height - 1;
+
+//        std::cerr << i << " " << j << "\n";
+
+        const auto scale_color = 1.0 / 255.0;
+        auto pixel = data + j * bytes_per_scanline + i * bytes_per_pixel;
+
+        return color (pixel[0] * scale_color, pixel[1] * scale_color, pixel[2] * scale_color);
+    }
+private:
+    unsigned char *data;
+    int width, height;
+    int bytes_per_scanline;
 };
 
 #endif //RAYTRACING_TEXTURE_H

@@ -12,6 +12,27 @@
 
 #include <algorithm>
 
+
+inline bool box_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b, int axis) {
+    aabb box_a;
+    aabb box_b;
+
+    if (!a->bounding_box(0, 0, box_a) || !b->bounding_box(0, 0, box_b))
+        std::cerr << "No bounding box in bvh constructor.\n";
+
+    return box_a.min()[axis] < box_b.min()[axis];
+}
+
+bool box_x_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b) {
+    return box_compare(a, b, 0);
+}
+bool box_y_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b) {
+    return box_compare(a, b, 1);
+}
+bool box_z_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b) {
+    return box_compare(a, b, 2);
+}
+
 class bvh_node:public hittable {
 public:
     bvh_node();
@@ -71,7 +92,7 @@ bvh_node::bvh_node(const std::vector<std::shared_ptr<hittable>> &src_objects, si
 
         auto mid = start + object_span / 2;
         left = std::make_shared<bvh_node>(objects, start, mid, time0, time1);
-        right = std::make_shared<bvh_node>(objects, mid, end, time0, time1);`
+        right = std::make_shared<bvh_node>(objects, mid, end, time0, time1);
     }
 
     aabb box_left, box_right;
@@ -81,26 +102,6 @@ bvh_node::bvh_node(const std::vector<std::shared_ptr<hittable>> &src_objects, si
         std::cerr << "No bounding box in bvh constructor.\n";
 
     box = surrounding_box(box_right, box_left);
-}
-
-inline bool box_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b, int axis) {
-    aabb box_a;
-    aabb box_b;
-
-    if (!a->bounding_box(0, 0, box_a) || !b->bounding_box(0, 0, box_b))
-        std::cerr << "No bounding box in bvh constructor.\n";
-
-    return box_a.min()[axis] < box_b.min()[axis];
-}
-
-bool box_x_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b) {
-    return box_compare(a, b, 0);
-}
-bool box_y_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b) {
-    return box_compare(a, b, 1);
-}
-bool box_z_compare(const std::shared_ptr<hittable> a, const std::shared_ptr<hittable> b) {
-    return box_compare(a, b, 2);
 }
 
 #endif //RAYTRACING_BVH_H

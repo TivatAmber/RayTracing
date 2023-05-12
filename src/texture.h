@@ -81,7 +81,7 @@ public:
             width = height = 0;
         }
 
-        std::cout << width << " " << height << std::endl;
+        std::cerr << width << " " << height << std::endl;
 
         bytes_per_scanline = bytes_per_pixel * width;
     }

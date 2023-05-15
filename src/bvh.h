@@ -66,7 +66,7 @@ bool bvh_node::hit(const ray &r, double t_min, double t_max, hit_record &rec) co
     return hit_left || hit_right;
 }
 
-bvh_node::bvh_node(const std::vector<std::shared_ptr<hittable>> &src_objects, size_t start, size_t end, double time0,
+bvh_node::bvh_node(const std::vector<std::shared_ptr<hittable>>& src_objects, size_t start, size_t end, double time0,
                    double time1) {
     auto objects = src_objects;
 
@@ -88,7 +88,7 @@ bvh_node::bvh_node(const std::vector<std::shared_ptr<hittable>> &src_objects, si
             right = objects[start];
         }
     } else {
-        std::sort(objects.begin() + start, objects.end() + end, comparator);
+        std::sort(objects.begin() + start, objects.begin() + end, comparator);
 
         auto mid = start + object_span / 2;
         left = std::make_shared<bvh_node>(objects, start, mid, time0, time1);
